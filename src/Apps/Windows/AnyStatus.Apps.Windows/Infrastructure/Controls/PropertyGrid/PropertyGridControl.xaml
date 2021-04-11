@@ -4,6 +4,11 @@
              xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:local="clr-namespace:AnyStatus.Apps.Windows.Infrastructure.Mvvm.Controls.PropertyGrid">
+    <UserControl.Resources>
+        <Style TargetType="TextBox">
+            <EventSetter Event="GotKeyboardFocus" Handler="TextBox_GotKeyboardFocus"/>
+        </Style>
+    </UserControl.Resources>
     <ItemsControl ItemsSource="{Binding Properties}">
         <ItemsControl.Resources>
             <!--text-->
