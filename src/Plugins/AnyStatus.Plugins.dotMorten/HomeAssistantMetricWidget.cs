@@ -34,7 +34,7 @@ namespace AnyStatus.Plugins.dotMorten
             request.Context.Status = Status.Running;
             var client = new HAClient(Endpoint.Token, Endpoint.Address);
             var state = await client.GetState(request.Context.EntityId);
-            if (double.TryParse(state, out double value))
+            if (double.TryParse(state.state, out double value))
             {
                 request.Context.Value = value;
                 request.Context.Status = Status.OK;

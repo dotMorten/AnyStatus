@@ -76,11 +76,24 @@ namespace AnyStatus.Plugins.dotMorten
         }
 
         public Task<string> GetStates() => RequestAsync("states");
-        public Task<string> GetState(string entityId) => RequestAsync("states/" + entityId);
+
+        public async Task<SensorState> GetState(string entityId) 
+        { 
+            string json = await RequestAsync("states/" + entityId).ConfigureAwait(false);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<SensorState>(json);
+        }
+
         public Task<string> SetState(string entityId, string state) => PostAsync("states/" + entityId, state);
         public Task<string> SwitchTurnOn(string entityId) => PostAsync("services/switch/turn_on", $"{{\"entity_id\": \"{entityId}\"}}");
         public Task<string> SwitchTurnOff(string entityId) => PostAsync("services/switch/turn_off", $"{{\"entity_id\": \"{entityId}\"}}");
 
+
+        public class SensorState
+        {
+            public string entity_id { get; set; }
+            public string state { get; set; }
+            public Dictionary<string,object> attributes { get; set; }
+        }
 
         public async Task<string> RequestAsync(string path)
         {
