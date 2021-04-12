@@ -39,7 +39,7 @@ namespace AnyStatus.Plugins.dotMorten
         public override string ToString()
         {
             if (!string.IsNullOrWhiteSpace(Unit))
-                return base.ToString() + " " + _unit;
+                return base.ToString() + _unit;
             return base.ToString();
         }
     }

@@ -58,7 +58,7 @@ namespace AnyStatus.Plugins.dotMorten
             }
             if (state.attributes.ContainsKey("unit_of_measurement"))
             {
-                value = value + " " + state.attributes["unit_of_measurement"];
+                value = value + state.attributes["unit_of_measurement"];
             }
             request.Context.Text = value;
             request.Context.Status = Status.OK;
