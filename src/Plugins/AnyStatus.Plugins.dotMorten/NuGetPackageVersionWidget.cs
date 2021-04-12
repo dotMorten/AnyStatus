@@ -46,19 +46,37 @@ namespace AnyStatus.Plugins.dotMorten
         [DisplayName("NuGet Package")]
         [Description("The NuGet package id.")]
         public string PackageId { get; set; }
+
+        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals(nameof(Text)))
+            {
+                if (Text != previousText)
+                {
+                    if (PreviousStatus != null && NotificationsSettings?.IsEnabled == true)
+                    {
+                        API.Events.WidgetNotifications.PublishAsync(API.Events.StatusChangedNotification.Create(this));
+                    }
+                    previousText = Text;
+                }
+                base.OnPropertyChanged(e);
+            }
+        }
+        string previousText;
     }
 
     public class NuGetPackageQuery : AsyncStatusCheck<NuGetPackageVersionWidget>
     {
         protected override async Task Handle(StatusRequest<NuGetPackageVersionWidget> request, CancellationToken cancellationToken)
         {
+            request.Context.NotificationsSettings.IsEnabled = true; // Didn't find a way to set this in the UI, so just force it here
             using HttpClient client = new HttpClient(new SocketsHttpHandler() { AutomaticDecompression = System.Net.DecompressionMethods.GZip }, true);
+            var oldStatus = request.Context.Status;
             request.Context.Status = Status.Running;
             var uri = "https://api.nuget.org/v3-flatcontainer/" + request.Context.PackageId.ToLowerInvariant() + "/index.json";
             var result = await client.GetStringAsync(uri);
             VersionInfo versionInfo = JsonConvert.DeserializeObject<VersionInfo>(result);
-            var version = versionInfo.versions.LastOrDefault();
-            request.Context.Text = version;
+            request.Context.Text = versionInfo.versions.LastOrDefault();
             request.Context.Status = Status.OK;
         }
 
