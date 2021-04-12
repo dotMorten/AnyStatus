@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 namespace AnyStatus.Plugins.dotMorten
 {
     [Category("Home Assistant")]
-    [DisplayName("Home Assistant - Graph")]
-    [Description("Home Assistant Graph")]
-    public class HomeAssistantMetricWidget : MetricWidget, IPollable, IStandardWidget, IRequireEndpoint<HomeAssistantEndpoint>
+    [DisplayName("Home Assistant - State")]
+    [Description("Home Assistant State")]
+    public class HomeAssistantStateWidget : TextLabelWidget, IPollable, IStandardWidget, IRequireEndpoint<HomeAssistantEndpoint>
     {
         [Order(10)]
         [DisplayName("Entity ID")]
@@ -25,24 +25,17 @@ namespace AnyStatus.Plugins.dotMorten
         public string EndpointId { get; set; }
     }
 
-    public class HomeAssistantMetricQuery : AsyncMetricQuery<HomeAssistantMetricWidget>, IEndpointHandler<HomeAssistantEndpoint>
+    public class HomeAssistantStateQuery : AsyncStatusCheck<HomeAssistantStateWidget>, IEndpointHandler<HomeAssistantEndpoint>
     {
         public HomeAssistantEndpoint Endpoint { get; set; }
 
-        protected override async Task Handle(MetricRequest<HomeAssistantMetricWidget> request, CancellationToken cancellationToken)
+        protected override async Task Handle(StatusRequest<HomeAssistantStateWidget> request, CancellationToken cancellationToken)
         {
             request.Context.Status = Status.Running;
             var client = new HAClient(Endpoint.Token, Endpoint.Address);
             var state = await client.GetState(request.Context.EntityId);
-            if (double.TryParse(state.state, out double value))
-            {
-                request.Context.Value = value;
-                request.Context.Status = Status.OK;
-            }
-            else
-            {
-                request.Context.Status = Status.Error;
-            }
+            request.Context.Text = state.state;
+            request.Context.Status = Status.OK;
         }
     }
 }
