@@ -26,21 +26,16 @@ namespace AnyStatus.Plugins.dotMorten
                 }
             }
             request.Context.Status = Status.Running;
-            var uri = "https://api.nuget.org/v3/registration5-gz-semver2/" + request.Context.PackageId.ToLower() + "/index.json";
+            var uri = "https://api.nuget.org/v3-flatcontainer/"+request.Context.PackageId+"/index.json";
             var result = await client.GetStringAsync(uri);
-            Root metadata = JsonConvert.DeserializeObject<Root>(result);
-            var version = metadata?.items?.LastOrDefault()?.upper;
+            VersionInfo versionInfo = JsonConvert.DeserializeObject<VersionInfo>(result);
+            var version = versionInfo.versions.LastOrDefault();
             request.Context.Text = version;
             request.Context.Status = Status.OK;
         }
-        private class Root
+        private class VersionInfo
         {
-            public List<ItemsItem> items { get; set; }
-        }
-        private class ItemsItem
-        {
-            public List<ItemsItem> items { get; set; }
-            public string upper { get; set; }
+            public List<string> versions { get; set; }
         }
     }
 }
