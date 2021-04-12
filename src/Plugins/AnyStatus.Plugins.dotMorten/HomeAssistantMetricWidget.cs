@@ -1,6 +1,7 @@
 ﻿using AnyStatus.API.Attributes;
 using AnyStatus.API.Widgets;
 using MediatR;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -23,6 +24,24 @@ namespace AnyStatus.Plugins.dotMorten
         [EndpointSource]
         [DisplayName("Endpoint")]
         public string EndpointId { get; set; }
+
+
+        private string _unit;
+
+        [JsonIgnore]
+        [Browsable(false)]
+        public string Unit
+        {
+            get => _unit;
+            set => Set(ref _unit, value);
+        }
+
+        public override string ToString()
+        {
+            if (!string.IsNullOrWhiteSpace(Unit))
+                return base.ToString() + " " + _unit;
+            return base.ToString();
+        }
     }
 
     public class HomeAssistantMetricQuery : AsyncMetricQuery<HomeAssistantMetricWidget>, IEndpointHandler<HomeAssistantEndpoint>
@@ -38,6 +57,10 @@ namespace AnyStatus.Plugins.dotMorten
             {
                 request.Context.Value = value;
                 request.Context.Status = Status.OK;
+                if (state.attributes.ContainsKey("unit_of_measurement"))
+                    request.Context.Unit = state.attributes["unit_of_measurement"]?.ToString();
+                else
+                    request.Context.Unit = null;
             }
             else
             {
