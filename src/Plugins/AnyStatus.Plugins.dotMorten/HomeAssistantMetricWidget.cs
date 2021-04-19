@@ -26,6 +26,7 @@
 using AnyStatus.API.Attributes;
 using AnyStatus.API.Widgets;
 using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
@@ -47,6 +48,10 @@ namespace AnyStatus.Plugins.dotMorten
         [EndpointSource]
         [DisplayName("Endpoint")]
         public string EndpointId { get; set; }
+
+        [Order(30)]
+        [DisplayName("Attribute (optional)")]
+        public string Attribute { get; set; }
 
 
         private string _unit;
@@ -76,7 +81,16 @@ namespace AnyStatus.Plugins.dotMorten
             request.Context.Status = Status.Running;
             var client = new HAClient(Endpoint.Token, Endpoint.Address);
             var state = await client.GetState(request.Context.EntityId);
-            if (double.TryParse(state.state, out double value))
+            var v = state.state;
+            if (!string.IsNullOrEmpty(request.Context.Attribute))
+            {
+                if (!state.attributes.ContainsKey(request.Context.Attribute))
+                {
+                    throw new ArgumentException($"Attribute {request.Context.Attribute} not found in entity");
+                }
+                v = state.attributes[request.Context.Attribute]?.ToString();
+            }
+            if (double.TryParse(v, out double value))
             {
                 request.Context.Value = value;
                 request.Context.Status = Status.OK;
