@@ -31,6 +31,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AnyStatus.API.Attributes;
+using AnyStatus.API.Notifications;
 using AnyStatus.API.Widgets;
 using Newtonsoft.Json;
 
@@ -46,27 +47,16 @@ namespace AnyStatus.Plugins.dotMorten
         [DisplayName("NuGet Package")]
         [Description("The NuGet package id.")]
         public string PackageId { get; set; }
-
-        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName.Equals(nameof(Text)))
-            {
-                if (Text != previousText)
-                {
-                    if (PreviousStatus != null && NotificationsSettings?.IsEnabled == true)
-                    {
-                        API.Events.WidgetNotifications.PublishAsync(API.Events.StatusChangedNotification.Create(this));
-                    }
-                    previousText = Text;
-                }
-                base.OnPropertyChanged(e);
-            }
-        }
-        string previousText;
     }
 
     public class NuGetPackageQuery : AsyncStatusCheck<NuGetPackageVersionWidget>
     {
+        private readonly INotificationService _notificationService;
+        public NuGetPackageQuery(INotificationService notificationService)
+        {
+            _notificationService = notificationService;
+        }
+
         protected override async Task Handle(StatusRequest<NuGetPackageVersionWidget> request, CancellationToken cancellationToken)
         {
             request.Context.NotificationsSettings.IsEnabled = true; // Didn't find a way to set this in the UI, so just force it here
@@ -76,7 +66,12 @@ namespace AnyStatus.Plugins.dotMorten
             var uri = "https://api.nuget.org/v3-flatcontainer/" + request.Context.PackageId.ToLowerInvariant() + "/index.json";
             var result = await client.GetStringAsync(uri);
             VersionInfo versionInfo = JsonConvert.DeserializeObject<VersionInfo>(result);
-            request.Context.Text = versionInfo.versions.LastOrDefault();
+            var text = versionInfo.versions.LastOrDefault();
+            if (text != request.Context.Text)
+            {
+                _notificationService.Send(new Notification($"NuGet '{request.Context.PackageId}' version changed from {request.Context.Text} to {text}.", $"NuGet Package Version Update", NotificationIcon.Info));
+                request.Context.Text = text;
+            }
             request.Context.Status = Status.OK;
         }
 
