@@ -47,6 +47,12 @@ namespace AnyStatus.Plugins.dotMorten
         [DisplayName("NuGet Package")]
         [Description("The NuGet package id.")]
         public string PackageId { get; set; }
+
+        [Order(10)]
+        [Required]
+        [DisplayName("Enable Notification")]
+        [Description("Whether a notification should be made when version changes.")]
+        public bool Notify { get; set; } = true;
     }
 
     public class NuGetPackageQuery : AsyncStatusCheck<NuGetPackageVersionWidget>
@@ -67,11 +73,11 @@ namespace AnyStatus.Plugins.dotMorten
             var result = await client.GetStringAsync(uri);
             VersionInfo versionInfo = JsonConvert.DeserializeObject<VersionInfo>(result);
             var text = versionInfo.versions.LastOrDefault();
-            if (text != request.Context.Text)
+            if (request.Context.Notify && text != request.Context.Text)
             {
                 _notificationService.Send(new Notification($"NuGet '{request.Context.PackageId}' version changed from {request.Context.Text} to {text}.", $"NuGet Package Version Update", NotificationIcon.Info));
-                request.Context.Text = text;
             }
+            request.Context.Text = text;
             request.Context.Status = Status.OK;
         }
 

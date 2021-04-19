@@ -24,6 +24,7 @@
  */
 
 using AnyStatus.API.Attributes;
+using AnyStatus.API.Notifications;
 using AnyStatus.API.Widgets;
 using System;
 using System.ComponentModel;
@@ -47,10 +48,23 @@ namespace AnyStatus.Plugins.dotMorten
         [EndpointSource]
         [DisplayName("Endpoint")]
         public string EndpointId { get; set; }
+
+        [Order(10)]
+        [Required]
+        [DisplayName("Enable Notification")]
+        [Description("Whether a notification should be made when the state changes.")]
+        public bool Notify { get; set; }
     }
 
     public class HomeAssistantStateQuery : AsyncStatusCheck<HomeAssistantStateWidget>, IEndpointHandler<HomeAssistantEndpoint>
     {
+        private readonly INotificationService _notificationService;
+
+        public HomeAssistantStateQuery(INotificationService notificationService)
+        {
+            _notificationService = notificationService;
+        }
+
         public HomeAssistantEndpoint Endpoint { get; set; }
 
         protected override async Task Handle(StatusRequest<HomeAssistantStateWidget> request, CancellationToken cancellationToken)
@@ -83,6 +97,10 @@ namespace AnyStatus.Plugins.dotMorten
             if (state.attributes.ContainsKey("unit_of_measurement"))
             {
                 value = value + state.attributes["unit_of_measurement"];
+            }
+            if(request.Context.Notify && request.Context.Text != value)
+            {
+                _notificationService.Send(new Notification($"State changed from {request.Context.Text} to {value}.", request.Context.Name, NotificationIcon.Info));
             }
             request.Context.Text = value;
             request.Context.Status = Status.OK;
