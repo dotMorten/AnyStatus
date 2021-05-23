@@ -2,17 +2,19 @@
 
 A remote control for your CI/CD pipelines and more.
 
+![AnyStatus](https://www.anystat.us/assets/images/screenshots/anystatus-3.0.293-preview.png)
+
 ## About
 
 [AnyStatus](https://www.anystat.us) is a powerful tool that brings together metrics, events, and information from various sources into one simple dashboard. Designed for extensibility, AnyStatus enables you to control and monitor your stack remotely. Including CI/CD pipelines, cloud and on-premise resources, deployment environments, networks, containers, pull requests, work items, and more.
 
-## Installing and running AnyStatus
+## Installation
 
 ### Microsoft Store
 
-Install AnyStatus from the [Microsoft Store](https://www.microsoft.com/en-us/p/anystatus/9p044vpk62sb). This allows you to always be on the latest version when we release new builds with automatic upgrades.
+Download and install AnyStatus from the [Microsoft Store](https://www.microsoft.com/en-us/p/anystatus/9p044vpk62sb). This allows you to always be on the latest version when we release new builds with automatic upgrades.
 
-## Plugins
+## Plugins and Widgets
 
 Some plugins come pre-installed, and are a great starting points for creating your own.
 
@@ -28,27 +30,10 @@ Some plugins come pre-installed, and are a great starting points for creating yo
 
 All contributions are welcome and greatly appreciated. Including pull requests, feature requests, bug reports, and documentation.
 
-## Current state of the code
+## State of the Project
 
 In version 3 of AnyStatus, I have re-written most the code from the ground up to fix some of the core issues that exist in version 2.
 Examples include, how and where the settings are saved, the API, MVVM framework and more. The core monitoring and plugins mechanism has greatly improved but other parts of the code, such as the application and user interface, still require refactorings and improvements.
-
-## Architecture
-
-> TBD
-
-- Vertical architecture
-- Feature based folder structure
-- Application commands pipeline
-- UI and MVVM framework
-- Pluggable widgets framework
-- Pluggable context menues framework
-- Job scheduler
-
-#### MVVM Framework
-
-In this project I have developed an experimental MVVM framework based on MediatR. The main usage of this framework is for showing Windows, Pages, and Context Menus.
-The context menus are fully pluggable and contextual. Future releases of AnyStatus may use a different MVVM framework, or the current framework will grow into a seperate repository. I'd love to hear your opinion about it.
 
 ## Status
 
