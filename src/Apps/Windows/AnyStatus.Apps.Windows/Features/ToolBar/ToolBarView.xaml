@@ -4,20 +4,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:toolBar="clr-namespace:AnyStatus.Apps.Windows.Features.ToolBar"
+             xmlns:converters="clr-namespace:AnyStatus.Apps.Windows.Infrastructure.Converters"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=toolBar:ToolBarViewModel, IsDesignTimeCreatable=False}">
-
+    <UserControl.Resources>
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <Style x:Key="ToolbarButton" TargetType="Button" BasedOn="{StaticResource FlatButtonStyle}">
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+        </Style>
+    </UserControl.Resources>
     <StackPanel Orientation="Horizontal" Margin="0,-44,40,0">
         <Button Command="{Binding Commands[ToggleMenu]}" 
-                Style="{StaticResource FlatButtonStyle}"
+                CommandParameter="{Binding MenuViewModel.IsVisible}"
+                Style="{StaticResource ToolbarButton}"
                 AutomationProperties.AutomationId="ToggleMenuButton"
-                ToolTip="Options">
+                ToolTip="Open Navigation">
             <Button.Content>
                 <ContentControl Height="24" Width="24" Content="{Binding Source={StaticResource MenuIcon}}"/>
             </Button.Content>
         </Button>
         <Button Command="{Binding Commands[Refresh]}"
-                Style="{StaticResource FlatButtonStyle}"
+                Style="{StaticResource ToolbarButton}"
                 AutomationProperties.AutomationId="RefreshAllButton"
                 ToolTip="Refresh">
             <Button.Content>
@@ -25,7 +32,7 @@
             </Button.Content>
         </Button>
         <Button Command="{Binding Commands[ExpandAll]}"
-                Style="{StaticResource FlatButtonStyle}"
+                Style="{StaticResource ToolbarButton}"
                 AutomationProperties.AutomationId="ExpandAllButton"
                 ToolTip="Expand">
             <Button.Content>
@@ -33,7 +40,7 @@
             </Button.Content>
         </Button>
         <Button Command="{Binding Commands[CollapseAll]}"
-                Style="{StaticResource FlatButtonStyle}"
+                Style="{StaticResource ToolbarButton}"
                 AutomationProperties.AutomationId="CollapseAllButton"
                 ToolTip="Collapse">
             <Button.Content>
@@ -41,27 +48,27 @@
             </Button.Content>
         </Button>
         <Button Command="{Binding Commands[Activity]}"
-                Style="{StaticResource FlatButtonStyle}"
+                Style="{StaticResource ToolbarButton}"
                 AutomationProperties.AutomationId="ShowActivityButton"
                 ToolTip="Activity">
             <Button.Content>
                 <ContentControl Height="24" Width="24" Content="{Binding Source={StaticResource ActivityIcon}}"/>
             </Button.Content>
         </Button>
-        <Button Command="{Binding Commands[AddWidget]}"
-                Style="{StaticResource FlatButtonStyle}"
-                AutomationProperties.AutomationId="AddWidgetButton"
-                ToolTip="Add Widget">
-            <Button.Content>
-                <ContentControl Height="24" Width="24" Content="{Binding Source={StaticResource AddWidgetIcon}}"/>
-            </Button.Content>
-        </Button>
         <Button Command="{Binding Commands[AddFolder]}"
-                Style="{StaticResource FlatButtonStyle}"
+                Style="{StaticResource ToolbarButton}"
                 AutomationProperties.AutomationId="AddFolderButton"
                 ToolTip="Add Folder">
             <Button.Content>
                 <ContentControl Height="24" Width="24" Content="{Binding Source={StaticResource AddFolderIcon}}"/>
+            </Button.Content>
+        </Button>
+        <Button Command="{Binding Commands[AddWidget]}"
+                Style="{StaticResource ToolbarButton}"
+                AutomationProperties.AutomationId="AddWidgetButton"
+                ToolTip="Add Widget">
+            <Button.Content>
+                <ContentControl Height="24" Width="24" Content="{Binding Source={StaticResource PlusIcon}}"/>
             </Button.Content>
         </Button>
         <!--

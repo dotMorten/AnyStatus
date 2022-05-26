@@ -1,15 +1,18 @@
 ﻿using AnyStatus.API.Common;
 using AnyStatus.API.Endpoints;
-using AnyStatus.Core.ContextMenu;
+using AnyStatus.Core.App;
 using AnyStatus.Core.Endpoints;
 using AnyStatus.Core.Jobs;
+using AnyStatus.Core.Logging;
 using AnyStatus.Core.Pipeline.Behaviors;
 using AnyStatus.Core.Pipeline.Decorators;
+using AnyStatus.Core.Serialization;
 using AnyStatus.Core.Services;
-using AnyStatus.Core.Settings;
+using AnyStatus.Core.Telemetry;
 using AutoMapper;
 using MediatR;
 using MediatR.Pipeline;
+using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -33,10 +36,21 @@ namespace AnyStatus.Core.Packages
             RegisterMediator(container, Scanner.GetAssemblies().ToList());
 
             RegisterJobScheduler(container);
+
+            RegisterLogger(container);
+        }
+
+        public static void RegisterLogger(Container container)
+        {
+            container.RegisterSingleton<Logger>();
+            container.RegisterSingleton<LoggerProvider>();
+            container.Register<ILoggerFactory>(() => new LoggerFactory(new[] { container.GetInstance<LoggerProvider>() }), Lifestyle.Singleton);
+            container.RegisterConditional(typeof(ILogger), ctx => typeof(Logger<>).MakeGenericType(ctx.Consumer.ImplementationType), Lifestyle.Singleton, _ => true);
         }
 
         private static void RegisterAppServices(Container container)
         {
+            container.RegisterSingleton<IAppContext, App.AppContext>();
             container.Register<IScanner, Scanner>(Lifestyle.Singleton);
             container.Register<ITelemetry, AppInsightsTelemetry>(Lifestyle.Singleton);
             container.Register<IEndpointSource, EndpointSource>(Lifestyle.Transient);
@@ -70,7 +84,6 @@ namespace AnyStatus.Core.Packages
                 typeof(RequestPreProcessorBehavior<,>),
                 typeof(RequestPostProcessorBehavior<,>),
                 typeof(ValidationBehavior<,>),
-                typeof(DynamicContextMenu.ContextMenuBehavior<,,>),
             });
 
             //Pipeline (Auto)
@@ -99,6 +112,7 @@ namespace AnyStatus.Core.Packages
         {
             container.Register<IJob, ScopedJob>();
             container.Register<IJobFactory, JobFactory>(Lifestyle.Singleton);
+            container.Register<IJobScheduler, JobScheduler>(Lifestyle.Singleton);
             container.Register<ISchedulerFactory>(() => new StdSchedulerFactory(), Lifestyle.Singleton);
         }
 

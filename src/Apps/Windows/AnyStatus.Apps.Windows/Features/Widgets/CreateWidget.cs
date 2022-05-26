@@ -1,14 +1,12 @@
 ﻿using AnyStatus.API.Common;
 using AnyStatus.API.Widgets;
 using AnyStatus.Apps.Windows.Infrastructure.Mvvm.Pages;
-using AnyStatus.Core.Domain;
+using AnyStatus.Core.App;
+using AnyStatus.Core.Widgets;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
 
 namespace AnyStatus.Apps.Windows.Features.Widgets
 {
@@ -45,9 +43,8 @@ namespace AnyStatus.Apps.Windows.Features.Widgets
 
         public class Handler : RequestHandler<Request>
         {
-            private readonly IAppContext _context;
             private readonly IMediator _mediator;
-            private readonly PagesViewModel _pagesViewModel;
+            private readonly IAppContext _context;
 
             public Handler(IAppContext context, IMediator mediator)
             {
@@ -65,9 +62,9 @@ namespace AnyStatus.Apps.Windows.Features.Widgets
 
                 _context.Session.IsDirty = true;
 
-                _mediator.Send(new ClosePage.Request());
+                _mediator.Send(Page.Close());
 
-                if (widget is IConfigurable && widget.GetType().GetProperties().Any(p => p.IsDefined(typeof(RequiredAttribute)) && p.GetValue(widget) is null))
+                if (widget.IsConfigurable())
                 {
                     _context.Session.SelectedWidget = widget;
 
@@ -79,9 +76,9 @@ namespace AnyStatus.Apps.Windows.Features.Widgets
             {
                 var widget = (IWidget)Activator.CreateInstance(request.Template.Type);
 
-                widget.Status = Status.None;
+                widget.Id = Guid.NewGuid().ToString();
+
                 widget.Name = request.Template.Name;
-                widget.NotificationsSettings = new WidgetNotificationSettings();
 
                 return widget;
             }

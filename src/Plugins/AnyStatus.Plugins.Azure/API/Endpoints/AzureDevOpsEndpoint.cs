@@ -7,7 +7,7 @@ namespace AnyStatus.Plugins.Azure.API.Endpoints
     [DisplayName(DefaultName)]
     public class AzureDevOpsEndpoint : Endpoint, IAzureDevOpsEndpoint
     {
-        public const string DefaultName = "Azure DevOps";
+        public const string DefaultName = "Azure DevOps Personal Access Token";
 
         public AzureDevOpsEndpoint()
         {
@@ -17,6 +17,7 @@ namespace AnyStatus.Plugins.Azure.API.Endpoints
         }
 
         [DisplayName("Personal Access Token")]
+        [Description("The personal access token organization must be \"All accessible organizations\".")]
         public string PersonalAccessToken { get; set; }
 
         [Browsable(false)]

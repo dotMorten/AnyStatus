@@ -1,10 +1,8 @@
 ﻿using AnyStatus.API.Dialogs;
-using AnyStatus.API.Services;
 using AnyStatus.API.Widgets;
-using AnyStatus.Core.Domain;
+using AnyStatus.Core.App;
 using AnyStatus.Core.Jobs;
 using MediatR;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,10 +12,7 @@ namespace AnyStatus.Apps.Windows.Features.Widgets
     {
         public class Request : IRequest
         {
-            public Request(IWidget widget)
-            {
-                Widget = widget;
-            }
+            public Request(IWidget widget) => Widget = widget;
 
             public IWidget Widget { get; }
         }
@@ -25,30 +20,46 @@ namespace AnyStatus.Apps.Windows.Features.Widgets
         public class Handler : AsyncRequestHandler<Request>
         {
             private readonly IAppContext _context;
-            private readonly IMediator _mediator;
+            private readonly IJobScheduler _jobScheduler;
             private readonly IDialogService _dialogService;
 
-            public Handler(IAppContext context, IMediator mediator, IDialogService dialogService)
+            public Handler(IAppContext context, IJobScheduler jobScheduler, IDialogService dialogService)
             {
-                _context = context ?? throw new ArgumentNullException(nameof(context));
-                _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-                _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+                _context = context;
+                _jobScheduler = jobScheduler;
+                _dialogService = dialogService;
             }
 
             protected override async Task Handle(Request request, CancellationToken cancellationToken)
             {
-                var dialog = new ConfirmationDialog($"Are you sure you want to delete '{request.Widget.Name}'?", "Delete");
+                var dialog = new ConfirmationDialog($"Are you sure you want to delete {request.Widget.Name}?", "Delete");
 
-                if (_dialogService.ShowDialog(dialog) != DialogResult.Yes)
+                if (await _dialogService.ShowDialogAsync(dialog) != DialogResult.Yes)
                 {
                     return;
                 }
 
                 request.Widget.Remove();
 
-                await _mediator.Send(new DeleteJob.Request(request.Widget, true), cancellationToken).ConfigureAwait(false);
-
                 _context.Session.IsDirty = true;
+
+                await Unschedule(request.Widget, cancellationToken);
+            }
+
+            private async Task Unschedule(IWidget widget, CancellationToken cancellationToken)
+            {
+                if (widget is IPollable)
+                {
+                    await _jobScheduler.DeleteJobAsync(widget.Id, cancellationToken);
+                }
+
+                if (widget.HasChildren)
+                {
+                    foreach (var child in widget)
+                    {
+                        await Unschedule(child, cancellationToken);
+                    }
+                }
             }
         }
     }

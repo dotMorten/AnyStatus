@@ -24,6 +24,7 @@
  */
 
 using AnyStatus.API.Attributes;
+using AnyStatus.API.Endpoints;
 using AnyStatus.API.Widgets;
 using Newtonsoft.Json;
 using System;
@@ -37,7 +38,7 @@ namespace AnyStatus.Plugins.dotMorten
     [Category("Home Assistant")]
     [DisplayName("Home Assistant - Graph")]
     [Description("Home Assistant Graph")]
-    public class HomeAssistantMetricWidget : MetricWidget, IPollable, IStandardWidget, IRequireEndpoint<HomeAssistantEndpoint>
+    public class HomeAssistantMetricWidget : MetricWidget, IPollable, ICommonWidget, IRequireEndpoint<HomeAssistantEndpoint>
     {
         [Order(10)]
         [DisplayName("Entity ID")]

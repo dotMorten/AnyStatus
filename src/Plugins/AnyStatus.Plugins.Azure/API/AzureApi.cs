@@ -1,4 +1,5 @@
-﻿using AnyStatus.Plugins.Azure.API.Contracts;
+﻿using AnyStatus.API.Endpoints;
+using AnyStatus.Plugins.Azure.API.Contracts;
 using AnyStatus.Plugins.Azure.API.Endpoints;
 using RestSharp;
 using System;
@@ -10,11 +11,13 @@ namespace AnyStatus.Plugins.Azure.API
     internal class AzureApi
     {
         private readonly IRestClient _client;
-        private readonly IAzureEndpoint _endpoint;
 
         internal AzureApi(IAzureEndpoint endpoint)
         {
-            _endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
+            if (endpoint is null)
+            {
+                throw new EndpointNotFoundException();
+            }
 
             _client = new RestClient(endpoint.Address)
             {
@@ -44,20 +47,6 @@ namespace AnyStatus.Plugins.Azure.API
             }
 
             return default;
-        }
-
-        private async Task ExecuteAsync(IRestRequest request, CancellationToken cancellationToken)
-        {
-            request.AddParameter("api-version", "2020-05-01");
-
-            //request.AddHeader("X-TFS-FedAuthRedirect", "Suppress");
-
-            var response = await _client.ExecuteAsync(request, request.Method, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessful || response.ErrorException != null)
-            {
-                throw new Exception("An error occurred while sending request to Azure DevOps.", response.ErrorException);
-            }
         }
 
         internal Task<AzureCollectionResponse<Subscription>> GetSubscriptionsAsync(CancellationToken cancellationToken = default) =>

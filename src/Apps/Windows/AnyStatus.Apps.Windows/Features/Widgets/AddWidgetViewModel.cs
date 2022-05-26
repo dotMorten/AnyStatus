@@ -1,7 +1,7 @@
 ﻿using AnyStatus.API.Widgets;
 using AnyStatus.Apps.Windows.Infrastructure.Mvvm;
-using AnyStatus.Core.Domain;
 using AnyStatus.Core.Services;
+using AnyStatus.Core.Widgets;
 using MediatR;
 using System.Collections.Generic;
 
@@ -15,13 +15,10 @@ namespace AnyStatus.Apps.Windows.Features.Widgets
 
         public AddWidgetViewModel(IMediator mediator)
         {
-            Commands.Add("Save", new Command(async _ => await mediator.Send(new CreateWidget.Request(Template, Parent)).ConfigureAwait(false), CanAdd));
+            Commands.Add("Save", new Command(async _ => await mediator.Send(new CreateWidget.Request(Template, Parent)), CanAdd));
         }
 
-        private bool CanAdd(object p)
-        {
-            return Category != null && Template != null && Parent != null;
-        }
+        private bool CanAdd(object p) => Category != null && Template != null && Parent != null;
 
         public IEnumerable<Category> Categories => Scanner.GetWidgetCategories();
 

@@ -1,7 +1,6 @@
 ﻿using AnyStatus.API.Events;
-using AnyStatus.Core.Services;
+using AnyStatus.Core.Telemetry;
 using MediatR;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
@@ -12,10 +11,7 @@ namespace AnyStatus.Apps.Windows.Features.Widgets
     {
         private readonly ITelemetry _telemetry;
 
-        public TrackAddedWidget(ITelemetry telemetry)
-        {
-            _telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
-        }
+        public TrackAddedWidget(ITelemetry telemetry) => _telemetry = telemetry;
 
         protected override void Handle(WidgetAddedNotification notification)
         {

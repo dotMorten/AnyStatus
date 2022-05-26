@@ -1,32 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <UseWPF>true</UseWPF>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <OutputType>WinExe</OutputType>
-    <UseWindowsForms>true</UseWindowsForms>
     <StartupObject>AnyStatus.Apps.Windows.Program</StartupObject>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-    <PlatformTarget>x64</PlatformTarget>
-    <!--<Platforms>AnyCPU;x64;x86</Platforms>-->
-    <!--<PlatformTarget>x86</PlatformTarget>-->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <!--<PlatformTarget>x64</PlatformTarget>-->
-    <!--<RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>-->
-    <!--<RuntimeIdentifier>win-x64</RuntimeIdentifier>-->
-    <!--<PublishSingleFile>true</PublishSingleFile>-->
+    <Platforms>x86;x64</Platforms>
+    <PlatformTarget>$(Platform)</PlatformTarget>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <AssemblyName>AnyStatus</AssemblyName>
-    <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
     <ApplicationIcon>App.ico</ApplicationIcon>
+    <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
-
-  <!--
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
-  </PropertyGroup>
-  -->
 
   <ItemGroup>
     <TrimmerRootAssembly Include="AnyStatus.Plugins" />
@@ -49,44 +36,36 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\AnyStatus.Core\AnyStatus.Core.csproj" />
     <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.dotMorten\AnyStatus.Plugins.dotMorten.csproj" />
-    <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins\AnyStatus.Plugins.csproj" />
+    <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.AppVeyor\AnyStatus.Plugins.AppVeyor.csproj" />
+    <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.Binance\AnyStatus.Plugins.Binance.csproj" />
+    <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.Demo\AnyStatus.Plugins.Demo.csproj" />
+    <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.GitHub\AnyStatus.Plugins.GitHub.csproj" />
+    <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.Network\AnyStatus.Plugins.Network.csproj" />
+    <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.TeamCity\AnyStatus.Plugins.TeamCity.csproj" />
     <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.Azure\AnyStatus.Plugins.Azure.csproj" />
     <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.Jenkins\AnyStatus.Plugins.Jenkins.csproj" />
     <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.Roslyn\AnyStatus.Plugins.Roslyn.csproj" />
     <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.NuGet\AnyStatus.Plugins.NuGet.csproj" />
     <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.Docker\AnyStatus.Plugins.Docker.csproj" />
     <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.SystemInformation\AnyStatus.Plugins.SystemInformation.csproj" />
+    <ProjectReference Include="..\..\..\Plugins\AnyStatus.Plugins.UptimeRobot\AnyStatus.Plugins.UptimeRobot.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.9" />
-    <PackageReference Include="ModernWpfUI" Version="0.9.3" />
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
-    <PackageReference Include="RestSharp" Version="106.11.7" />
-    <PackageReference Include="ScottPlot.WPF" Version="4.0.42" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1054.31" />
+    <PackageReference Include="ModernWpfUI" Version="0.9.4" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.37" />
+    <PackageReference Include="RestSharp" Version="106.13.0" />
+    <PackageReference Include="ScottPlot.WPF" Version="4.1.27" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
-    <PackageReference Include="Humanizer.Core" Version="2.8.26" />
+    <PackageReference Include="Humanizer.Core" Version="2.11.10" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="appsettings.json" ExcludeFromSingleFile="True" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Features\Endpoints\OAuthEnpointView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Features\Endpoints\OAuthEnpointView.xaml">
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
 
 </Project>

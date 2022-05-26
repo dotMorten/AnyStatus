@@ -6,38 +6,32 @@ namespace AnyStatus.Plugins.Docker
 {
     public static class DockerExtensions
     {
-        public static Status GetStatus(this ContainerListResponse container)
+        public static string GetStatus(this ContainerListResponse container)
         {
             if (container is null)
             {
                 throw new ArgumentNullException(nameof(container));
             }
 
-            switch (container.State)
+            return container.State switch
             {
-                case "created": return Status.None;
-                case "restarting": return Status.None;
-                case "running": return Status.OK;
-                case "paused": return Status.Paused;
-                case "exited": return Status.Stopped;
-                case "removing": return Status.Unknown;
-                case "dead": return Status.Unknown;
-                default: return Status.Unknown;
-            }
+                "created" => Status.None,
+                "restarting" => Status.None,
+                "running" => Status.OK,
+                "paused" => Status.Paused,
+                "exited" => Status.Stopped,
+                "removing" => Status.Unknown,
+                "dead" => Status.Unknown,
+                _ => Status.Unknown,
+            };
         }
 
-        public static string GetName(this ContainerListResponse container)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
+        public static string GetName(this ContainerListResponse container) => container is null
+                ? throw new ArgumentNullException(nameof(container))
+                : container.Names?.Count > 0 ? container.Names[0].Remove(0, 1) : container.ID;
 
-            return container.Names?.Count > 0 ? container.Names[0].Remove(0, 1) : container.ID;
-        }
-
-        public static string GetName(this ImagesListResponse container)
-        {
-            if (container is null) throw new ArgumentNullException(nameof(container));
-
-            return container.RepoTags?.Count > 0 ? container.RepoTags[0] : container.ID;
-        }
+        public static string GetName(this ImagesListResponse container) => container is null
+                ? throw new ArgumentNullException(nameof(container))
+                : container.RepoTags?.Count > 0 ? container.RepoTags[0] : container.ID;
     }
 }

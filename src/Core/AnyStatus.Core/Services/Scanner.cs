@@ -1,6 +1,6 @@
 ﻿using AnyStatus.API.Widgets;
-using AnyStatus.Core.Domain;
 using AnyStatus.Core.Extensions;
+using AnyStatus.Core.Widgets;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace AnyStatus.Core.Services
 {
     public class Scanner : IScanner
     {
-        private static readonly Lazy<IEnumerable<Assembly>> _assemblies = new Lazy<IEnumerable<Assembly>>(LoadAssemblies);
+        private static readonly Lazy<IEnumerable<Assembly>> _assemblies = new(LoadAssemblies);
 
         public static IEnumerable<Assembly> GetAssemblies() => _assemblies.Value;
 

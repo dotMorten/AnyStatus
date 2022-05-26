@@ -5,13 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              xmlns:activity="clr-namespace:AnyStatus.Apps.Windows.Features.Activity"
-             xmlns:entities="clr-namespace:AnyStatus.Core.Domain;assembly=AnyStatus.Core"
+             xmlns:logging="clr-namespace:AnyStatus.Core.Logging;assembly=AnyStatus.Core"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=activity:ActivityViewModel, IsDesignTimeCreatable=False}">
 
     <UserControl.Resources>
 
-        <CollectionViewSource x:Key="ActivityMessage" Source="{Binding Messages, Mode=OneTime}">
+        <CollectionViewSource x:Key="LogEntries" Source="{Binding LogEntries}">
             <CollectionViewSource.SortDescriptions>
                 <componentModel:SortDescription PropertyName="Time" Direction="Descending"/>
             </CollectionViewSource.SortDescriptions>
@@ -39,7 +39,7 @@
 
     </UserControl.Resources>
 
-    <DataGrid ItemsSource="{Binding Source={StaticResource ActivityMessage}}"
+    <DataGrid ItemsSource="{Binding Source={StaticResource LogEntries}}"
               AutoGenerateColumns="False"
               IsReadOnly="True"
               SelectionMode="Single"
@@ -65,11 +65,11 @@
                 </Style.Triggers>
             </Style>
 
-            <DataTemplate x:Key="MessageTemplate" DataType="{x:Type entities:ActivityMessage}">
+            <DataTemplate x:Key="MessageTemplate" DataType="{x:Type logging:LogEntry}">
                 <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
             </DataTemplate>
 
-            <DataTemplate x:Key="MessageWithExceptionTemplate" DataType="{x:Type entities:ActivityMessage}">
+            <DataTemplate x:Key="MessageWithExceptionTemplate" DataType="{x:Type logging:LogEntry}">
                 <Expander>
                     <Expander.Header>
                         <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
@@ -109,17 +109,9 @@
                 </DataGridTextColumn.ElementStyle>
             </DataGridTextColumn>
 
-            <DataGridTextColumn Header="Thread" Binding="{Binding ThreadId}" Width="58">
-                <DataGridTextColumn.ElementStyle>
-                    <Style TargetType="{x:Type TextBlock}">
-                        <Setter Property="Margin" Value="0,0,10,0" />
-                    </Style>
-                </DataGridTextColumn.ElementStyle>
-            </DataGridTextColumn>
-
             <DataGridTemplateColumn Header="Message" Width="*" ClipboardContentBinding="{Binding Converter={StaticResource ClipboardContentConverter}}">
                 <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate DataType="{x:Type entities:ActivityMessage}">
+                    <DataTemplate DataType="{x:Type logging:LogEntry}">
                         <ContentControl Content="{Binding}">
                             <ContentControl.Style>
                                 <Style TargetType="ContentControl">

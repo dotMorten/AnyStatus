@@ -40,7 +40,7 @@ namespace AnyStatus.Plugins.dotMorten
     [Category("Morten")]
     [DisplayName("HTTP Status Code Checker")]
     [Description("Notifies when the HTTP Status of a URL changes")]
-    public class HttpStatusCodeCheckerWidget : TextLabelWidget, IPollable, IStandardWidget
+    public class HttpStatusCodeCheckerWidget : TextWidget, IPollable, ICommonWidget
     {
         [Order(10)]
         [Required]
@@ -65,7 +65,7 @@ namespace AnyStatus.Plugins.dotMorten
 
         protected override async Task Handle(StatusRequest<HttpStatusCodeCheckerWidget> request, CancellationToken cancellationToken)
         {
-            request.Context.NotificationsSettings.IsEnabled = true; // Didn't find a way to set this in the UI, so just force it here
+            //request.Context.NotificationsSettings.IsEnabled = true; // Didn't find a way to set this in the UI, so just force it here
             using HttpClient client = new HttpClient(new SocketsHttpHandler() { AutomaticDecompression = System.Net.DecompressionMethods.GZip }, true);
             var oldStatus = request.Context.Status;
             request.Context.Status = Status.Running;

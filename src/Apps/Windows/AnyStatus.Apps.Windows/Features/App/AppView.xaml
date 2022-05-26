@@ -9,14 +9,14 @@
              xmlns:pages="clr-namespace:AnyStatus.Apps.Windows.Infrastructure.Mvvm.Pages"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=local:AppViewModel, IsDesignTimeCreatable=False}">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding Commands[Refresh]}"/>
+        <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding MenuViewModel.Commands[Save]}"/>
+    </UserControl.InputBindings>
     <Grid>
-        <DockPanel>
-            <toolBar:ToolBarView DataContext="{Binding ToolBarViewModel}" DockPanel.Dock="Top"/>
-            <Grid>
-                <dashboard:DashboardView DataContext="{Binding DashboardViewModel}"/>
-                <dashboard:MenuView DataContext="{Binding MenuViewModel}"/>
-            </Grid>
-        </DockPanel>
+        <toolBar:ToolBarView DataContext="{Binding ToolBarViewModel}" VerticalAlignment="Top"/>
+        <dashboard:DashboardView DataContext="{Binding DashboardViewModel}"/>
         <pages:PagesView DataContext="{Binding PagesViewModel}"/>
+        <dashboard:MenuView DataContext="{Binding MenuViewModel}" HorizontalAlignment="Left"/>
     </Grid>
 </UserControl>

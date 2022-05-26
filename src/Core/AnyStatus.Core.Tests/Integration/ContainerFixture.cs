@@ -1,7 +1,6 @@
 ﻿using AnyStatus.API.Dialogs;
 using AnyStatus.API.Notifications;
 using AnyStatus.API.Services;
-using AnyStatus.Core.Domain;
 using AnyStatus.Core.Services;
 using NSubstitute;
 using SimpleInjector;
@@ -22,15 +21,11 @@ namespace AnyStatus.Core.Tests.Integration
 
             Container.RegisterPackages(Scanner.GetAssemblies());
 
-            Container.RegisterSingleton<IAppContext, Domain.AppContext>();
-
             Container.RegisterInstance(Substitute.For<IDialogService>());
 
             Container.RegisterInstance(Substitute.For<INotificationService>());
 
             Container.RegisterInstance<IDispatcher>(new Dispatcher());
-
-            Container.AddDebugLogger();
 
             Container.Options.ResolveUnregisteredConcreteTypes = true;
 

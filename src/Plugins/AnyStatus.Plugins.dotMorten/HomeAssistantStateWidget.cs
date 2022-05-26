@@ -24,6 +24,7 @@
  */
 
 using AnyStatus.API.Attributes;
+using AnyStatus.API.Endpoints;
 using AnyStatus.API.Notifications;
 using AnyStatus.API.Widgets;
 using System;
@@ -37,7 +38,7 @@ namespace AnyStatus.Plugins.dotMorten
     [Category("Home Assistant")]
     [DisplayName("Home Assistant - State")]
     [Description("Home Assistant State")]
-    public class HomeAssistantStateWidget : TextLabelWidget, IPollable, IStandardWidget, IRequireEndpoint<HomeAssistantEndpoint>
+    public class HomeAssistantStateWidget : TextWidget, IPollable, ICommonWidget, IRequireEndpoint<HomeAssistantEndpoint>
     {
         [Order(10)]
         [DisplayName("Entity ID")]
@@ -66,7 +67,8 @@ namespace AnyStatus.Plugins.dotMorten
         }
 
         public HomeAssistantEndpoint Endpoint { get; set; }
-
+        public string EndpointId { get; set; }
+        
         protected override async Task Handle(StatusRequest<HomeAssistantStateWidget> request, CancellationToken cancellationToken)
         {
             request.Context.Status = Status.Running;

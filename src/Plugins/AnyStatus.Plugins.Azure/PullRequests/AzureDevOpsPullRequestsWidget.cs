@@ -11,13 +11,8 @@ namespace AnyStatus.Plugins.Azure.DevOps.PullRequests
     [Category("Azure DevOps")]
     [DisplayName("Azure DevOps Pull Requests")]
     [Description("View the status of pull requests on Azure DevOps")]
-    public class AzureDevOpsPullRequestsWidget : MetricWidget, IAzureDevOpsWidget, IRequireEndpoint<IAzureDevOpsEndpoint>, IStandardWidget, IPollable
+    public class AzureDevOpsPullRequestsWidget : TextWidget, IAzureDevOpsWidget, IRequireEndpoint<IAzureDevOpsEndpoint>, ICommonWidget, IPollable
     {
-        public AzureDevOpsPullRequestsWidget()
-        {
-            IsPersisted = false;
-        }
-
         [Required]
         [EndpointSource]
         [DisplayName("Endpoint")]
@@ -26,11 +21,11 @@ namespace AnyStatus.Plugins.Azure.DevOps.PullRequests
 
         [Required]
         [Refresh(nameof(Project))]
-        [AsyncItemsSource(typeof(AzureDevOpsAccountSource))]
+        [AsyncItemsSource(typeof(AzureDevOpsAccountSource), autoload: true)]
         public string Account { get; set; }
 
         [Required]
-        [AsyncItemsSource(typeof(AzureDevOpsProjectSource), autoload: false)]
+        [AsyncItemsSource(typeof(AzureDevOpsProjectSource))]
         public string Project { get; set; }
     }
 }

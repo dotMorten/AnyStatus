@@ -6,30 +6,28 @@ namespace AnyStatus.Apps.Windows.Infrastructure.Behaviors
 {
     internal class TreeViewHelper
     {
-        private static readonly Dictionary<DependencyObject, TreeViewSelectedItemBehavior> behaviors = new Dictionary<DependencyObject, TreeViewSelectedItemBehavior>();
+        private static readonly Dictionary<DependencyObject, TreeViewSelectedItemBehavior> behaviors = new();
 
-        public static void SetSelectedItem(DependencyObject obj, object value)
-        {
-            obj.SetValue(SelectedItemProperty, value);
-        }
+        public static void SetSelectedItem(DependencyObject obj, object value) => obj.SetValue(SelectedItemProperty, value);
 
         /// <summary>
         /// Used to control selected item from view-model.
         /// </summary>
-        public static readonly DependencyProperty SelectedItemProperty =
-            DependencyProperty.RegisterAttached("SelectedItem", typeof(object), typeof(TreeViewHelper), new UIPropertyMetadata(null, SelectedItemChanged));
+        public static readonly DependencyProperty SelectedItemProperty = DependencyProperty.RegisterAttached("SelectedItem", typeof(object), typeof(TreeViewHelper), new UIPropertyMetadata(null, SelectedItemChanged));
 
         private static void SelectedItemChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            if (obj is TreeView)
+            if (obj is not TreeView)
             {
-                if (!behaviors.ContainsKey(obj))
-                {
-                    behaviors.Add(obj, new TreeViewSelectedItemBehavior(obj as TreeView));
-                }
-
-                behaviors[obj].ChangeSelectedItem(e.NewValue);
+                return;
             }
+
+            if (!behaviors.ContainsKey(obj))
+            {
+                behaviors.Add(obj, new TreeViewSelectedItemBehavior(obj as TreeView));
+            }
+
+            behaviors[obj].ChangeSelectedItem(e.NewValue);
         }
 
         private class TreeViewSelectedItemBehavior
@@ -66,7 +64,7 @@ namespace AnyStatus.Apps.Windows.Infrastructure.Behaviors
             {
                 var item = (TreeViewItem)_view.ItemContainerGenerator.ContainerFromItem(p);
 
-                if (item is object)
+                if (item is not null)
                 {
                     item.IsSelected = true;
                 }

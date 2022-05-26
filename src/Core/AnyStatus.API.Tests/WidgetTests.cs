@@ -22,7 +22,7 @@ namespace AnyStatus.API.Tests
         {
             var widget = new MockWidget();
 
-            Assert.Equal(Status.None, widget.Status);
+            Assert.Null(widget.Status);
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace AnyStatus.API.Tests
 
             widget.Status = Status.Error;
 
-            Assert.Equal(Status.OK, widget.PreviousStatus);
+            widget.PreviousStatus.Equals(Status.OK);
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace AnyStatus.API.Tests
         [Fact]
         public void Status_ShouldChange_WhenChildStatusChanged()
         {
-            var parent = new MockWidget
+            var parent = new AggregateMockWidget
             {
                 Status = Status.None
             };

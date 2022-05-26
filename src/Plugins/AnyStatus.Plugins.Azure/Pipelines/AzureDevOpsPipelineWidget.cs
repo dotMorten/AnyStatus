@@ -11,13 +11,13 @@ using System.ComponentModel.DataAnnotations;
 namespace AnyStatus.Plugins.Azure.DevOps.Builds
 {
     [Category("Azure DevOps")]
-    [DisplayName("Azure DevOps Pipeline Status")]
-    [Description("View the status of pipelines on Azure DevOps")]
+    [DisplayName("Azure DevOps Pipeline")]
+    [Description("View the status of build pipelines on Azure DevOps")]
     public class AzureDevOpsPipelineWidget : StatusWidget,
         IAzureDevOpsWidget,
         IRequireEndpoint<IAzureDevOpsEndpoint>,
-        IStandardWidget,
-        IWebPage,
+        ICommonWidget,
+        IOpenInApp,
         IPollable,
         IPipeline,
         IStartable,
@@ -36,17 +36,17 @@ namespace AnyStatus.Plugins.Azure.DevOps.Builds
 
         [Required]
         [Refresh(nameof(Project))]
-        [AsyncItemsSource(typeof(AzureDevOpsAccountSource))]
+        [AsyncItemsSource(typeof(AzureDevOpsAccountSource), autoload: true)]
         public string Account { get; set; }
 
         [Required]
         [Refresh(nameof(DefinitionId))]
-        [AsyncItemsSource(typeof(AzureDevOpsProjectSource), autoload: false)]
+        [AsyncItemsSource(typeof(AzureDevOpsProjectSource))]
         public string Project { get; set; }
 
         [Required]
         [DisplayName("Pipeline")]
-        [AsyncItemsSource(typeof(AzureDevOpsPipelineSource), autoload: false)]
+        [AsyncItemsSource(typeof(AzureDevOpsPipelineSource))]
         public string DefinitionId { get; set; }
 
         [JsonIgnore]
@@ -87,16 +87,25 @@ namespace AnyStatus.Plugins.Azure.DevOps.Builds
 
         [JsonIgnore]
         [Browsable(false)]
-        public bool CanStart => Status != Status.Error && Status != Status.Queued && Status != Status.Running;
+        public bool CanStart => Status != AnyStatus.API.Widgets.Status.Error && Status != AnyStatus.API.Widgets.Status.Queued && Status != AnyStatus.API.Widgets.Status.Running;
 
         [JsonIgnore]
         [Browsable(false)]
-        public bool CanStop => HasBuildId && (Status == Status.Queued || Status == Status.Running);
+        public bool CanStop => HasBuildId && (Status == AnyStatus.API.Widgets.Status.Queued || Status == AnyStatus.API.Widgets.Status.Running);
 
         [JsonIgnore]
         [Browsable(false)]
         public string URL { get; set; }
 
         private bool HasBuildId => !string.IsNullOrEmpty(BuildId);
+
+        public void Reset()
+        {
+            Branch = null;
+            BuildId = null;
+            Duration = default;
+            FinishTime = default;
+            BuildNumber = null;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using AnyStatus.API.Widgets;
+﻿using AnyStatus.API.Endpoints;
+using AnyStatus.API.Widgets;
 using Docker.DotNet.Models;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +12,9 @@ namespace AnyStatus.Plugins.Docker.Containers
 
         protected override async Task Handle(RestartRequest<ReadOnlyDockerContainerWidget> request, CancellationToken cancellationToken)
         {
-            using (var client = Endpoint.GetClient())
-                await client.Containers.RestartContainerAsync(request.Context.ContainerId, new ContainerRestartParameters(), cancellationToken)
-                    .ConfigureAwait(false);
+            using var client = Endpoint.GetClient();
+
+            await client.Containers.RestartContainerAsync(request.Context.ContainerId, new ContainerRestartParameters(), cancellationToken);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using AnyStatus.API.Widgets;
+﻿using AnyStatus.API.Endpoints;
+using AnyStatus.API.Widgets;
 using AnyStatus.Plugins.Azure.API;
 using AnyStatus.Plugins.Azure.API.Endpoints;
 using AutoMapper;
@@ -27,12 +28,8 @@ namespace AnyStatus.Plugins.Azure.DevOps.Builds
 
             if (build is null)
             {
+                request.Context.Reset();
                 request.Context.Status = Status.Unknown;
-                request.Context.Branch = null;
-                request.Context.BuildId = null;
-                request.Context.Duration = default;
-                request.Context.FinishTime = default;
-                request.Context.BuildNumber = null;
             }
             else
             {

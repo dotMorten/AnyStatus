@@ -1,4 +1,5 @@
-﻿using AnyStatus.Plugins.Azure.API.Contracts;
+﻿using AnyStatus.API.Endpoints;
+using AnyStatus.Plugins.Azure.API.Contracts;
 using AnyStatus.Plugins.Azure.API.Endpoints;
 using RestSharp;
 using System;
@@ -15,7 +16,7 @@ namespace AnyStatus.Plugins.Azure.API
 
         internal AzureDevOpsApi(IAzureDevOpsEndpoint endpoint)
         {
-            _endpoint = endpoint;
+            _endpoint = endpoint ?? throw new EndpointNotFoundException();
 
             _client = new RestClient(endpoint.Address)
             {
@@ -104,7 +105,7 @@ namespace AnyStatus.Plugins.Azure.API
             var request = new RestRequest(string.Format("{0}/{1}/_apis/build/builds", Uri.EscapeDataString(organization), Uri.EscapeDataString(project)));
 
             request.AddParameter("$top", top);
-
+            request.AddParameter("queryOrder","queueTimeDescending");
             request.AddParameter("definitions", definitionId);
 
             return ExecuteAsync<CollectionResponse<Build>>(request, cancellationToken);
@@ -144,7 +145,7 @@ namespace AnyStatus.Plugins.Azure.API
             return ExecuteAsync<CollectionResponse<ReleaseDefinition>>(request, cancellationToken);
         }
 
-        internal Task<CollectionResponse<Release>> GetReleasesAsync(string organization, string project, string definitionId, int top, CancellationToken cancellationToken = default)
+        internal Task<CollectionResponse<Release>> GetReleasesAsync(string organization, string project, int definitionId, int top, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest(string.Format("{0}/{1}/{2}/_apis/release/releases", _endpoint.ReleaseManagement, Uri.EscapeDataString(organization), Uri.EscapeDataString(project)));
 
@@ -207,9 +208,9 @@ namespace AnyStatus.Plugins.Azure.API
 
         //Work Items
 
-        internal Task<WorkItemQueryResult> QueryWorkItemsAsync(string query, CancellationToken cancellationToken = default)
+        internal Task<WorkItemQueryResult> QueryWorkItemsAsync(string organization, string project, string query, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest("_apis/wit/wiql", Method.POST);
+            var request = new RestRequest(string.Format("{0}/{1}/_apis/wit/wiql?api-version=5.0", Uri.EscapeDataString(organization), Uri.EscapeDataString(project)), Method.POST);
 
             request.AddJsonBody(new { query });
 
@@ -223,9 +224,9 @@ namespace AnyStatus.Plugins.Azure.API
             return ExecuteAsync<WorkItemQueryResult>(request, cancellationToken);
         }
 
-        internal Task<CollectionResponse<WorkItem>> GetWorkItemsAsync(List<string> ids, CancellationToken cancellationToken = default)
+        internal Task<CollectionResponse<WorkItem>> GetWorkItemsAsync(string organization, string project, List<string> ids, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest("_apis/wit/workitemsbatch", Method.POST);
+            var request = new RestRequest(string.Format("{0}/{1}/_apis/wit/workitemsbatch?api-version=5.0", Uri.EscapeDataString(organization), Uri.EscapeDataString(project)), Method.POST);
 
             request.AddJsonBody(new Dictionary<string, object>
             {
@@ -270,8 +271,18 @@ namespace AnyStatus.Plugins.Azure.API
             var request = new RestRequest(string.Format("{0}/{1}/{2}/_apis/git/pullrequests", _endpoint.Address, Uri.EscapeDataString(organization), Uri.EscapeDataString(project)));
 
             request.AddParameter("searchCriteria.status", status);
+            
+            //request.AddParameter("searchCriteria.includeLinks", true); //web link is not included in the response
 
             return ExecuteAsync<CollectionResponse<GitPullRequest>>(request, cancellationToken);
+        }
+    
+        //Iterations
+        internal Task<CollectionResponse<Iteration>> GetIterationsAsync(string organization, string project, CancellationToken cancellationToken = default)
+        {
+            var request = new RestRequest(string.Format("{0}/{1}/{2}/_apis/work/teamsettings/iterations", _endpoint.ReleaseManagement, Uri.EscapeDataString(organization), Uri.EscapeDataString(project)));
+
+            return ExecuteAsync<CollectionResponse<Iteration>>(request, cancellationToken);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using AnyStatus.Core.Services;
+﻿using AnyStatus.Core.Telemetry;
 using MediatR;
 using MediatR.Pipeline;
 using SimpleInjector;
@@ -11,10 +11,7 @@ namespace AnyStatus.Apps.Windows.Infrastructure.Mvvm.Pages
     {
         private readonly ITelemetry _telemetry;
 
-        public PageTelemetry(ITelemetry telemetry)
-        {
-            _telemetry = telemetry;
-        }
+        public PageTelemetry(ITelemetry telemetry) => _telemetry = telemetry;
 
         public Task Process(Page request, Unit response, CancellationToken cancellationToken)
         {

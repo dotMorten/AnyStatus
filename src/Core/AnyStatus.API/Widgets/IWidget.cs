@@ -10,8 +10,6 @@ namespace AnyStatus.API.Widgets
 
         string Name { get; set; }
 
-        string Hint { get; set; }
-
         bool IsEnabled { get; set; }
 
         IWidget Parent { get; set; }
@@ -20,16 +18,16 @@ namespace AnyStatus.API.Widgets
 
         bool IsExpanded { get; set; }
 
-        Status Status { get; set; }
+        string Status { get; set; }
 
-        Status PreviousStatus { get; }
+        string PreviousStatus { get; }
 
         void Move(int x, int y);
 
         void Expand();
 
-        WidgetNotificationSettings NotificationsSettings { get; set; }
+        void Reassess();
 
-        void Reassessment();
+        bool IsConfigurable();
     }
 }

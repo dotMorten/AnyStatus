@@ -31,6 +31,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AnyStatus.API.Attributes;
+using AnyStatus.API.Events;
 using AnyStatus.API.Notifications;
 using AnyStatus.API.Widgets;
 using Newtonsoft.Json;
@@ -40,7 +41,7 @@ namespace AnyStatus.Plugins.dotMorten
     [Category("Morten")]
     [DisplayName("NuGet Package Version")]
     [Description("NuGet package version number")]
-    public class NuGetPackageVersionWidget : TextLabelWidget, IPollable, IStandardWidget
+    public class NuGetPackageVersionWidget : TextWidget, IPollable, ICommonWidget
     {
         [Order(10)]
         [Required]
@@ -65,7 +66,7 @@ namespace AnyStatus.Plugins.dotMorten
 
         protected override async Task Handle(StatusRequest<NuGetPackageVersionWidget> request, CancellationToken cancellationToken)
         {
-            request.Context.NotificationsSettings.IsEnabled = true; // Didn't find a way to set this in the UI, so just force it here
+            //request.Context.NotificationsSettings.IsEnabled = true; // Didn't find a way to set this in the UI, so just force it here
             using HttpClient client = new HttpClient(new SocketsHttpHandler() { AutomaticDecompression = System.Net.DecompressionMethods.GZip }, true);
             var oldStatus = request.Context.Status;
             request.Context.Status = Status.Running;
@@ -76,6 +77,7 @@ namespace AnyStatus.Plugins.dotMorten
             if (request.Context.Notify && text != request.Context.Text)
             {
                 _notificationService.Send(new Notification($"NuGet '{request.Context.PackageId}' version changed from {request.Context.Text} to {text}.", $"NuGet Package Version Update", NotificationIcon.Info));
+                //WidgetNotifications.PublishAsync(StatusChangedNotification.Create(this));
             }
             request.Context.Text = text;
             request.Context.Status = Status.OK;

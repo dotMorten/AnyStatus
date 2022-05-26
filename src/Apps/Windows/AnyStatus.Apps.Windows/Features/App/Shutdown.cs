@@ -1,11 +1,10 @@
 ﻿using AnyStatus.API.Dialogs;
 using AnyStatus.API.Services;
-using AnyStatus.Apps.Windows.Features.Menu;
 using AnyStatus.Apps.Windows.Features.SystemTray;
 using AnyStatus.Core.App;
-using AnyStatus.Core.Domain;
+using AnyStatus.Core.Features;
 using AnyStatus.Core.Jobs;
-using AnyStatus.Core.Services;
+using AnyStatus.Core.Telemetry;
 using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
@@ -24,8 +23,8 @@ namespace AnyStatus.Apps.Windows.Features.App
 
         public class ConfirmAndSaveBeforeShutdown : IRequestPreProcessor<Request>
         {
-            private readonly IAppContext _context;
             private readonly IMediator _mediator;
+            private readonly IAppContext _context;
             private readonly IDialogService _dialogService;
 
             public ConfirmAndSaveBeforeShutdown(IAppContext context, IMediator mediator, IDialogService dialogService)
@@ -37,29 +36,27 @@ namespace AnyStatus.Apps.Windows.Features.App
 
             public async Task Process(Request request, CancellationToken cancellationToken)
             {
-                if (_context.Session.IsDirty)
+                if (_context.Session.IsNotDirty)
                 {
-                    var dialog = new ConfirmationDialog("Would you like to save changes before exiting?", "Save Changes?")
-                    {
-                        Cancellable = true
-                    };
+                    return;
+                }
 
-                    var result = _dialogService.ShowDialog(dialog);
+                var dialog = new ConfirmationDialog("Would you like to save changes before exiting?", "Save Changes?")
+                {
+                    Cancellable = true
+                };
 
-                    switch (result)
-                    {
-                        case DialogResult.Cancel:
-                            request.Cancel = true;
-                            break;
-
-                        case DialogResult.Yes:
-                            var saved = await _mediator.Send(new SaveCommand.Request(), cancellationToken).ConfigureAwait(false);
-                            if (!saved) request.Cancel = true;
-                            break;
-
-                        default:
-                            break;
-                    }
+                switch (await _dialogService.ShowDialogAsync(dialog))
+                {
+                    case DialogResult.Yes:
+                        var saved = await _mediator.Send(new Save.Request(), cancellationToken);
+                        if (!saved) request.Cancel = true;
+                        break;
+                    case DialogResult.None:
+                        request.Cancel = true;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -71,36 +68,47 @@ namespace AnyStatus.Apps.Windows.Features.App
             private readonly ISystemTray _sysTray;
             private readonly ITelemetry _telemetry;
             private readonly IDispatcher _dispatcher;
+            private readonly IJobScheduler _jobScheduler;
 
-            public Handler(IMediator mediator, ISystemTray sysTray, IDispatcher dispatcher, ITelemetry telemetry, ILogger logger)
+            public Handler(IMediator mediator, ISystemTray sysTray, IDispatcher dispatcher, ITelemetry telemetry, ILogger logger, IJobScheduler jobScheduler)
             {
                 _logger = logger;
                 _sysTray = sysTray;
                 _mediator = mediator;
                 _telemetry = telemetry;
                 _dispatcher = dispatcher;
+                _jobScheduler = jobScheduler;
             }
 
             protected override async Task Handle(Request request, CancellationToken cancellationToken)
             {
                 if (request.Cancel)
                 {
-                    _logger.LogDebug("Shutdown has been canceled.");
-
+                    _logger.LogWarning("Shutdown has been canceled.");
                     return;
                 }
 
-                _logger.LogDebug("Shutting down AnyStatus...");
-
-                _telemetry.TrackEvent("Shutdown");
-
-                await _mediator.Send(new CloseAllWindows.Request(), cancellationToken).ConfigureAwait(false);
-                await _mediator.Send(new StopScheduler.Request(), cancellationToken).ConfigureAwait(false);
-                await _mediator.Send(new SaveContext.Request(), cancellationToken).ConfigureAwait(false);
+                _logger.LogInformation("Shutting down AnyStatus...");
 
                 _sysTray.Dispose();
 
-                _dispatcher.Invoke(Application.Current.Shutdown);
+                await _jobScheduler.StopAsync(cancellationToken);
+
+                await _mediator.Send(new SaveSession.Request());
+
+                await _mediator.Send(new SaveUserSettings.Request());
+
+                _telemetry.TrackEvent("Shutdown");
+
+                _dispatcher.Invoke(() =>
+                {
+                    foreach (Window window in Application.Current.Windows)
+                    {
+                        window.Close();
+                    }
+
+                    Application.Current.Shutdown();
+                });
             }
         }
     }

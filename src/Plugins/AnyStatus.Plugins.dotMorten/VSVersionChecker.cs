@@ -19,7 +19,7 @@ namespace AnyStatus.Plugins.dotMorten
     [Category("Morten")]
     [DisplayName("Visual Studio Version checker")]
     [Description("Notifies when a new version of Visual Studio is available")]
-    public class VSVersionCheckerWidget : TextLabelWidget, IPollable, IStandardWidget
+    public class VSVersionCheckerWidget : TextWidget, IPollable, ICommonWidget
     {
         
         [Required]
@@ -59,7 +59,7 @@ namespace AnyStatus.Plugins.dotMorten
 
         protected override async Task Handle(StatusRequest<VSVersionCheckerWidget> request, CancellationToken cancellationToken)
         {
-            request.Context.NotificationsSettings.IsEnabled = true; // Didn't find a way to set this in the UI, so just force it here
+            //request.Context.NotificationsSettings.IsEnabled = true; // Didn't find a way to set this in the UI, so just force it here
             using HttpClient client = new HttpClient(new SocketsHttpHandler() { AutomaticDecompression = System.Net.DecompressionMethods.GZip }, true);
             var oldStatus = request.Context.Status;
             request.Context.Status = Status.Running;

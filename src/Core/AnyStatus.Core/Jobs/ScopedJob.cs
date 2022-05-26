@@ -1,5 +1,4 @@
-﻿using AnyStatus.Core.Domain;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using SimpleInjector;
@@ -12,16 +11,13 @@ namespace AnyStatus.Core.Jobs
     {
         private readonly Container _container;
 
-        public ScopedJob(ILogger logger, IMediator mediator, Container container) : base(logger, mediator)
-        {
-            _container = container;
-        }
+        public ScopedJob(ILogger logger, IMediator mediator, Container container) : base(logger, mediator) => _container = container;
 
         public override async Task Execute(IJobExecutionContext context)
         {
             using (AsyncScopedLifestyle.BeginScope(_container))
             {
-                await base.Execute(context).ConfigureAwait(false);
+                await base.Execute(context);
             }
         }
     }

@@ -9,7 +9,7 @@ namespace AnyStatus.Plugins.Jenkins.Jobs
     [Category("Jenkins")]
     [DisplayName("Jenkins Job Status")]
     [Description("View the status of jobs on Jenkins server")]
-    public class JenkinsJobWidget : StatusWidget, IRequireEndpoint<JenkinsEndpoint>, IStandardWidget, IPollable, IProgress
+    public class JenkinsJobWidget : StatusWidget, IRequireEndpoint<JenkinsEndpoint>, ICommonWidget, IPollable, IProgress
     {
         [Required]
         [EndpointSource]
@@ -19,8 +19,7 @@ namespace AnyStatus.Plugins.Jenkins.Jobs
 
         [Required]
         [DisplayName("Job")]
-        [Description("Required")]
-        [AsyncItemsSource(typeof(JenkinsJobsSource))]
+        [AsyncItemsSource(typeof(JenkinsJobsSource), autoload: true)]
         public string Job { get; set; }
     }
 }
